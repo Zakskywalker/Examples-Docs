@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "dgSpecHash": "EtPw2Q97RUU=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\zaksk\\Documents\\Source\\CSharp\\animated_graph_gif\\animated_graph_gif.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\zaksk\\.nuget\\packages\\sixlabors.imagesharp\\4.1.2\\sixlabors.imagesharp.4.1.2.nupkg.sha512",
+    "C:\\Users\\zaksk\\.nuget\\packages\\skiasharp\\4.152.1\\skiasharp.4.152.1.nupkg.sha512",
+    "C:\\Users\\zaksk\\.nuget\\packages\\skiasharp.nativeassets.macos\\4.152.1\\skiasharp.nativeassets.macos.4.152.1.nupkg.sha512",
+    "C:\\Users\\zaksk\\.nuget\\packages\\skiasharp.nativeassets.win32\\4.152.1\\skiasharp.nativeassets.win32.4.152.1.nupkg.sha512",
+    "C:\\Users\\zaksk\\.nuget\\packages\\system.io.hashing\\8.0.0\\system.io.hashing.8.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
