@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VS Code C# Setup Guide</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <nav>
+        <h2>.NET Environment</h2>
+        <ul>
+            <li><a href="#intro">Introduction</a></li>
+            <li><a href="#step1">1. Install .NET SDK</a></li>
+            <li><a href="#step2">2. VS Code Extensions</a></li>
+            <li><a href="#step3">3. Create C# Project</a></li>
+            <li><a href="#step4">4. Run & Debug</a></li>
+            <li><a href="#winforms">Windows Forms</a></li>
+            <li><a href="#shortcuts">Shortcuts</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <header id="intro">
+            <h1>C#.NET Setup Guide for VS Code</h1>
+            <p>A comprehensive dark Microsoft Purple themed workflow blueprint.</p>
+        </header>
+
+        <section>
+            <p>Configure a cross-platform C# environment within Visual Studio Code by establishing the underlying compiler runtime, language tools, and deployment scripts.</p>
+        </section>
+
+        <section id="step1">
+            <h2>1. Download and Install the .NET SDK</h2>
+            <p>Your workspace requires compiler binaries to parse code execution structures.</p>
+            <ul>
+                <li>Get the latest stable SDK from the official <a href="https://microsoft.com" class="external-link" target="_blank">Microsoft .NET Download Page</a>.</li>
+                <li>Run the system package installer and finish the default setup process.</li>
+            </ul>
+            <h3>Verify Installation</h3>
+            <p>Open a terminal windows environment and run the check string:</p>
+            <pre><code>dotnet --version</code></pre>
+        </section>
+
+        <section id="step2">
+            <h2>2. Install the VS Code Extensions</h2>
+            <p>Integrate compilation engines and debug features directly into the editor view footprint.</p>
+            <ol>
+                <li>Open Visual Studio Code.</li>
+                <li>Go to the Extensions layout icon menu panel (or press <code>Ctrl+Shift+X</code> / <code>Cmd+Shift+X</code>).</li>
+                <li>Search for <code>"C# Dev Kit"</code> and click Install.</li>
+            </ol>
+            <div class="note-box">
+                <p><strong>System Note:</strong> Installing the C# Dev Kit bundle container automatically sets up base debugger syntax rules and background runtime tracking tools.</p>
+            </div>
+        </section>
+
+        <section id="step3">
+            <h2>3. Create a New C# Project</h2>
+            <p>Choose an execution architecture deployment path below to generate your program boilerplate structures safely.</p>
+            
+            <h3>Option A: The GUI Command Interface</h3>
+            <ol>
+                <li>Open the Command Palette using <code>Ctrl+Shift+P</code> (or <code>Cmd+Shift+P</code> on Mac).</li>
+                <li>Select <code>.NET: New Project...</code> from the dropdown options list.</li>
+                <li>Choose the <code>Console App</code> template layout object.</li>
+                <li>Select a folder workspace on your local drive disk.</li>
+                <li>Type your project name (e.g., <code>MyFirstApp</code>) and press Enter.</li>
+            </ol>
+
+            <h3>Option B: Integrated Terminal Scripting</h3>
+            <p>Initialize project assets rapidly via direct shell scripts. Launch your terminal panel window layout (<code>Ctrl+`</code>) and process these commands sequence lines sequentially:</p>
+            <pre><code>mkdir MyFirstApp
+cd MyFirstApp
+dotnet new console</code></pre>
+            <p>Open the workspace files safely by going to the top menu and clicking <strong>File > Open Folder</strong>, then select your new directory choice.</p>
+        </section>
+
+        <section id="step4">
+            <h2>4. Run and Debug Your Code</h2>
+            <p>Locate the <code>Program.cs</code> file inside the root workspace folder view list to inspect your primary logic block structure layout.</p>
+            
+            <div class="grid-container">
+                <div class="card">
+                    <h4>Terminal Execution</h4>
+                    <p>Run the direct compilation command tool inside the active terminal container framework:</p>
+                    <pre><code>dotnet run</code></pre>
+                </div>
+                <div class="card">
+                    <h4>Editor UI Execution</h4>
+                    <p>Click the visual Play Button interface icon located on the top header ribbon, or press <code>Ctrl+F5</code> (<code>Cmd+F5</code>).</p>
+                </div>
+                <div class="card">
+                    <h4>Debugging Operations</h4>
+                    <p>Switch to the Run and Debug icon panel, choose C# as the environment runtime engine, and place break markers.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="winforms">
+            <h2>Windows Forms (WinForms) Support</h2>
+            <p>VS Code runs WinForms logic fine on Windows, but does not feature an official visual drag-and-drop designer window palette tool.</p>
+            
+            <h3>Scaffolding a WinForms Project Matrix</h3>
+            <pre><code>dotnet new winforms -o MyWinFormsApp
+cd MyWinFormsApp
+dotnet run</code></pre>
+            
+            <h3>UI Build Design Methodologies</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Development Path</th>
+                        <th>Workflow Execution Paradigm</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Code-First Composition</strong></td>
+                        <td>Instantiate and format buttons, text layout forms, grids, and canvas logic manually inside code modules like Form1.cs.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Community Extensions</strong></td>
+                        <td>Incorporate unofficial experimental add-ons such as the C# Form GUI Editor grid array via the marketplace layout hub.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Visual Studio IDE Integration</strong></td>
+                        <td>Migrate your working solution to the full Visual Studio Community Edition tool for optimized visual toolboxes.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="shortcuts">
+            <h2>Useful Environment Shortcuts</h2>
+            <div class="grid-container">
+                <div class="card">
+                    <h4>Command Palette</h4>
+                    <p><code>Ctrl + Shift + P</code></p>
+                </div>
+                <div class="card">
+                    <h4>Extensions Panel</h4>
+                    <p><code>Ctrl + Shift + X</code></p>
+                </div>
+                <div class="card">
+                    <h4>Toggle Terminal</h4>
+                    <p><code>Ctrl + `</code></p>
+                </div>
+                <div class="card">
+                    <h4>Build Project</h4>
+                    <p><code>dotnet build</code></p>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
