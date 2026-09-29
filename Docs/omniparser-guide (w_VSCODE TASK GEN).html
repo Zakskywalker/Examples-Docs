@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="color-scheme" content="dark">
+	<title>OmniParser + C# Workspace Guide</title>
+	<style>
+		:root {
+			color-scheme: dark;
+			--page: #111416;
+			--surface: #191e20;
+			--surface-raised: #202729;
+			--line: #343d3f;
+			--text: #e9efeb;
+			--muted: #a5b1ac;
+			--mint: #9ce2c8;
+			--amber: #ffc477;
+			--red: #ff9c83;
+			--mono: "Cascadia Code", Consolas, monospace;
+			--sans: "Segoe UI", Tahoma, sans-serif;
+		}
+
+		* { box-sizing: border-box; }
+		html { scroll-behavior: smooth; scroll-padding-top: 28px; }
+		body {
+			margin: 0;
+			background:
+				radial-gradient(ellipse at 78% 0%, rgba(72, 111, 97, .18), transparent 38rem),
+				var(--page);
+			color: var(--text);
+			font: 16px/1.65 var(--sans);
+		}
+		a { color: var(--mint); text-underline-offset: 3px; }
+		a:hover { color: #c4f4e1; }
+		code, pre, kbd { font-family: var(--mono); }
+		code { color: #c3ead8; }
+		.skip-link {
+			position: absolute;
+			left: -10000px;
+			top: 8px;
+			z-index: 5;
+			padding: 8px 12px;
+			background: var(--mint);
+			color: #111;
+		}
+		.skip-link:focus { left: 8px; }
+		.topbar {
+			position: sticky;
+			top: 0;
+			z-index: 3;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 16px;
+			min-height: 58px;
+			padding: 0 28px;
+			border-bottom: 1px solid var(--line);
+			background: rgba(17, 20, 22, .94);
+			backdrop-filter: blur(12px);
+		}
+		.brand { display: flex; align-items: center; gap: 11px; font-weight: 650; }
+		.brand-mark {
+			display: grid;
+			place-items: center;
+			width: 28px;
+			aspect-ratio: 1;
+			border: 1px solid #52776a;
+			color: var(--mint);
+			font: 700 12px var(--mono);
+		}
+		.top-meta { color: var(--muted); font: 12px var(--mono); }
+		.layout {
+			display: grid;
+			grid-template-columns: 220px minmax(0, 840px);
+			gap: clamp(28px, 6vw, 88px);
+			max-width: 1280px;
+			margin: 0 auto;
+			padding: 42px 36px 96px;
+		}
+		.sidebar { position: sticky; top: 94px; align-self: start; }
+		.nav-label, .eyebrow {
+			color: var(--amber);
+			font: 700 11px var(--mono);
+			letter-spacing: .08em;
+			text-transform: uppercase;
+		}
+		.sidebar nav { display: grid; gap: 3px; margin-top: 12px; }
+		.sidebar nav a {
+			padding: 7px 10px;
+			border-left: 2px solid transparent;
+			color: var(--muted);
+			font-size: 14px;
+			text-decoration: none;
+		}
+		.sidebar nav a:hover, .sidebar nav a:focus-visible {
+			border-left-color: var(--mint);
+			background: rgba(156, 226, 200, .06);
+			color: var(--text);
+		}
+		.sidebar-note {
+			margin-top: 28px;
+			padding-top: 14px;
+			border-top: 1px solid var(--line);
+			color: var(--muted);
+			font-size: 12px;
+		}
+		main { min-width: 0; }
+		.hero { padding: 8px 0 34px; border-bottom: 1px solid var(--line); }
+		h1, h2, h3 { margin: 0; line-height: 1.2; }
+		h1 {
+			max-width: 760px;
+			margin-top: 12px;
+			font: 500 clamp(34px, 5vw, 52px)/1.08 Georgia, "Times New Roman", serif;
+		}
+		.hero p { max-width: 720px; margin: 18px 0 0; color: #c1cbc6; font-size: 17px; }
+		.badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+		.badge {
+			padding: 4px 9px;
+			border: 1px solid var(--line);
+			color: var(--muted);
+			font: 11px var(--mono);
+		}
+		.notice {
+			margin-top: 22px;
+			padding: 13px 16px;
+			border-left: 3px solid var(--amber);
+			background: rgba(255, 196, 119, .07);
+			color: #e8d9bf;
+		}
+		section { padding: 34px 0; border-bottom: 1px solid var(--line); }
+		section h2 { margin-bottom: 14px; font: 500 27px Georgia, "Times New Roman", serif; }
+		section h3 { margin: 24px 0 8px; color: var(--mint); font-size: 16px; }
+		section p { margin: 10px 0; color: #c0cac5; }
+		section ul, section ol { padding-left: 22px; color: #c0cac5; }
+		li { margin: 6px 0; }
+		.flow {
+			display: grid;
+			grid-template-columns: repeat(4, minmax(0, 1fr));
+			gap: 8px;
+			margin: 20px 0;
+		}
+		.flow div { min-height: 94px; padding: 12px; border-top: 2px solid #55776b; background: var(--surface); }
+		.flow b { display: block; margin-bottom: 5px; color: var(--mint); font-size: 13px; }
+		.flow span { color: var(--muted); font-size: 12px; }
+		.table-wrap { overflow-x: auto; margin: 16px 0; border: 1px solid var(--line); }
+		table { width: 100%; border-collapse: collapse; min-width: 560px; }
+		th, td { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+		th { background: var(--surface); color: var(--amber); font: 700 11px var(--mono); text-transform: uppercase; }
+		td { color: #c0cac5; font-size: 14px; }
+		tr:last-child td { border-bottom: 0; }
+		pre {
+			overflow-x: auto;
+			margin: 14px 0;
+			padding: 15px 17px;
+			border: 1px solid var(--line);
+			background: #0c0f10;
+			color: #dce9e2;
+			font-size: 13px;
+			line-height: 1.6;
+		}
+		.callout {
+			margin: 16px 0;
+			padding: 13px 16px;
+			border-left: 3px solid var(--mint);
+			background: rgba(156, 226, 200, .06);
+			color: #c8d8d1;
+		}
+		.callout.warning { border-left-color: var(--red); background: rgba(255, 156, 131, .06); }
+		kbd { padding: 2px 6px; border: 1px solid #596260; background: var(--surface-raised); color: var(--text); font-size: 12px; }
+		footer { padding: 28px 0; color: var(--muted); font-size: 12px; }
+		@media (max-width: 800px) {
+			.layout { grid-template-columns: 1fr; gap: 22px; padding: 26px 20px 72px; }
+			.sidebar { position: static; }
+			.sidebar nav { display: flex; overflow-x: auto; gap: 4px; padding-bottom: 6px; }
+			.sidebar nav a { flex: 0 0 auto; border-left: 0; border-bottom: 2px solid transparent; }
+			.sidebar nav a:hover, .sidebar nav a:focus-visible { border-bottom-color: var(--mint); }
+			.sidebar-note { display: none; }
+			.topbar { padding: 0 18px; }
+		}
+		@media (max-width: 560px) {
+			.top-meta { display: none; }
+			.flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+			h1 { font-size: 38px; }
+		}
+		@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+	</style>
+</head>
+<body>
+	<a class="skip-link" href="#content">Skip to guide</a>
+	<header class="topbar">
+		<div class="brand"><span class="brand-mark">OP</span><span>Workspace field guide</span></div>
+		<div class="top-meta">C# / .NET 10 / Windows</div>
+	</header>
+	<div class="layout">
+		<aside class="sidebar" aria-label="Guide navigation">
+			<div class="nav-label">On this page</div>
+			<nav>
+				<a href="#overview">Overview</a>
+				<a href="#omniparser">OmniParser</a>
+				<a href="#workspace">Workspace files</a>
+				<a href="#run">Run the detector</a>
+				<a href="#detector">Detector behavior</a>
+				<a href="#tasks">VS Code tasks</a>
+				<a href="#troubleshooting">Troubleshooting</a>
+				<a href="#references">References</a>
+			</nav>
+			<div class="sidebar-note">This guide describes the files currently present in this workspace. It is self-contained and can be opened directly in a browser.</div>
+		</aside>
+		<main id="content">
+			<header class="hero" id="overview">
+				<div class="eyebrow">Local project guide</div>
+				<h1>OmniParser and the C# workspace</h1>
+				<p>What the checked-in model does, how the C# detector calls it, how to run the demo, and how to scaffold new C# console or Windows Forms projects in VS Code.</p>
+				<div class="badges"><span class="badge">Windows</span><span class="badge">.NET 10</span><span class="badge">ONNX Runtime + DirectML</span></div>
+				<div class="notice"><strong>Scope:</strong> this workspace contains OmniParser's icon-detection model and a C# inference wrapper. It does not contain the complete OmniParser pipeline, caption model, or a sample screenshot.</div>
+			</header>
+
+			<section id="omniparser">
+				<h2>What OmniParser does</h2>
+				<p>OmniParser is a screen-parsing system intended to turn GUI screenshots into structured elements that a vision-capable agent can reason about and ground actions against. The upstream project combines interactive-region detection with icon descriptions; it is a perception component, not by itself a complete computer-use agent.</p>
+				<div class="flow" aria-label="Conceptual screen parsing pipeline">
+					<div><b>1. Screenshot</b><span>Pixels from a desktop or application window.</span></div>
+					<div><b>2. Detect regions</b><span>Find candidate controls and icon regions.</span></div>
+					<div><b>3. Describe icons</b><span>A caption model can add functional descriptions.</span></div>
+					<div><b>4. Ground actions</b><span>An agent uses parsed elements to choose screen coordinates.</span></div>
+				</div>
+			<div class="callout">In this C# sample, only step 2 is implemented. It returns boxes and numeric class IDs; it does not caption icons, parse text, decide what to click, or perform mouse/keyboard actions.</div>
+				<p>The upstream repository and model releases evolve independently. Follow their README and model card for the complete setup, required weights, model versions, and licensing. The local <code>.pt</code> file is a PyTorch checkpoint; this C# program loads the adjacent <code>model.onnx</code> file instead.</p>
+			</section>
+
+			<section id="workspace">
+				<h2>Files in this workspace</h2>
+				<div class="table-wrap">
+					<table>
+						<thead><tr><th>Path</th><th>Purpose</th></tr></thead>
+						<tbody>
+							<tr><td><code>onnx_runner/Program.cs</code></td><td>Explicit <code>static void Main(string[] args)</code> entry point, command-line validation, model discovery, and printed detections.</td></tr>
+							<tr><td><code>onnx_runner/UIControlDetector.cs</code></td><td>Loads the ONNX session, prepares an image tensor, runs inference, and converts the output into bounding boxes.</td></tr>
+							<tr><td><code>onnx_runner/onnx_runner.csproj</code></td><td>.NET 10 console project and ONNX Runtime DirectML / ImageSharp package references.</td></tr>
+							<tr><td><code>omniparser_v2/icon_detect/model.onnx</code></td><td>ONNX model used at runtime by the C# detector.</td></tr>
+							<tr><td><code>omniparser_v2/icon_detect/model.pt</code></td><td>PyTorch weights file; the current C# code does not load it.</td></tr>
+							<tr><td><code>.vscode/tasks.json</code></td><td>Workspace tasks for creating a static-Main console app and a Windows Forms app.</td></tr>
+						</tbody>
+					</table>
+				</div>
+			</section>
+
+			<section id="run">
+				<h2>Run the C# detector</h2>
+				<p>From the workspace root, provide a screenshot path. A confidence threshold is optional and defaults to <code>0.4</code>.</p>
+				<pre><code>dotnet run --project onnx_runner/onnx_runner.csproj -- "C:\path\to\screenshot.png"
+dotnet run --project onnx_runner/onnx_runner.csproj -- "C:\path\to\screenshot.png" 0.55</code></pre>
+			<p>The program looks for <code>omniparser_v2/icon_detect/model.onnx</code> by searching upward from both the current working directory and the executable directory. It prints a count followed by class ID, confidence, and <code>[x, y, width, height]</code> for each detected box.</p>
+			<div class="callout warning">Inference currently requests the DirectML execution provider on device 0. A Windows DirectML-compatible GPU/runtime is required; there is no CPU fallback in <code>UIControlDetector</code>. No screenshot is checked into this workspace, so supply your own image.</div>
+		</section>
+
+			<section id="detector">
+				<h2>Detector behavior and assumptions</h2>
+				<ol>
+					<li>Loads the image as RGB and remembers its original dimensions.</li>
+					<li>Resizes it directly to <code>640 x 640</code>, then builds a float tensor shaped <code>[1, 3, 640, 640]</code> with RGB values scaled to <code>[0, 1]</code>.</li>
+					<li>Runs the model using the first input name and reads the first output as a float tensor.</li>
+					<li>Interprets output as <code>[1, features, anchors]</code>: center-x, center-y, width, height, then class scores. The highest score above the threshold becomes a box.</li>
+					<li>Scales box coordinates back to the original image dimensions. The class value printed is a numeric index, not a human-readable label.</li>
+				</ol>
+				<div class="callout warning">This is a small inference demonstration, not a full post-processing port. It stretches images rather than preserving aspect ratio, assumes one specific output tensor layout, and does not perform non-maximum suppression or map class IDs to labels. Validate those assumptions against the exact ONNX model before relying on detections.</div>
+				<p>The session and inference result are disposed with <code>using</code>; the detector itself implements <code>IDisposable</code>. If the ONNX model's input/output names, dimensions, or preprocessing contract differ, update the wrapper to match the model metadata.</p>
+			</section>
+
+			<section id="tasks">
+				<h2>Create C# projects from VS Code</h2>
+				<p>These workspace tasks call the installed <code>dotnet new</code> templates. Use <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd>, run <strong>Tasks: Run Task</strong>, select a task, and enter a project name. New project folders are created under the workspace root.</p>
+				<h3>Console project with explicit Main</h3>
+				<p>Select <strong>New C# Console Project (static Main)</strong>. The task runs the console template with <code>--use-program-main</code>, producing a conventional <code>Program</code> class and <code>Main</code> method instead of top-level statements.</p>
+				<pre><code>dotnet new console --use-program-main --output &lt;workspace&gt;/&lt;project-name&gt;</code></pre>
+				<h3>Windows Forms project with Form1</h3>
+				<p>Select <strong>New C# Windows Forms Project (Form1)</strong>. The standard WinForms template creates <code>Form1.cs</code>, its designer file, a project file, and the WinForms startup code in <code>Program.cs</code>.</p>
+				<pre><code>dotnet new winforms --output &lt;workspace&gt;/&lt;project-name&gt;</code></pre>
+				<p>WinForms is Windows-specific. These tasks are workspace-scoped; they do not change VS Code's built-in project wizard defaults or other workspaces. A newly generated project is not automatically added to the existing solution. To add one, run:</p>
+				<pre><code>dotnet sln onnx_runner.sln add &lt;project-name&gt;/&lt;project-name&gt;.csproj</code></pre>
+			</section>
+
+			<section id="troubleshooting">
+				<h2>Troubleshooting</h2>
+				<h3>Image not found</h3>
+				<p>Pass an existing image path. Paths with spaces should be quoted. Supported image formats depend on ImageSharp's installed codecs.</p>
+				<h3>Model not found</h3>
+				<p>Keep <code>omniparser_v2/icon_detect/model.onnx</code> in the workspace tree, or change <code>FindModelPath()</code> in <code>Program.cs</code> to use a configured path.</p>
+				<h3>DirectML or provider initialization error</h3>
+				<p>Confirm the Windows machine has a compatible DirectML device and matching native ONNX Runtime files. For a CPU-only path, add an explicit CPU session option and make the execution provider selectable; the current constructor always requests DirectML.</p>
+				<h3>No detections or unexpected boxes</h3>
+				<p>Check the model's expected preprocessing, input size, output tensor shape, confidence semantics, and need for non-maximum suppression. The current parser is intentionally narrow and assumes the output layout listed above.</p>
+				<h3>New task does not appear</h3>
+				<p>Make sure VS Code opened this workspace folder, then run <strong>Tasks: Run Task</strong> again. The required templates are the installed <code>console</code> and <code>winforms</code> .NET templates.</p>
+			</section>
+
+			<section id="references">
+				<h2>References</h2>
+				<ul>
+					<li><a href="https://github.com/microsoft/OmniParser">Microsoft OmniParser repository and current README</a></li>
+					<li><a href="https://huggingface.co/microsoft/OmniParser-v2.0">OmniParser v2 model collection</a></li>
+					<li><a href="https://microsoft.github.io/OmniParser/">OmniParser project page</a></li>
+					<li><a href="https://learn.microsoft.com/dotnet/core/tools/dotnet-new">.NET template command reference</a></li>
+				</ul>
+				<p>Before sharing or redistributing model weights, check the license and terms attached to the exact upstream model release you downloaded.</p>
+			</section>
+			<footer>Workspace guide for the local C# ONNX demo. Model capabilities and upstream instructions may change; consult the linked project and model pages for current details.</footer>
+		</main>
+	</div>
+</body>
+</html>
