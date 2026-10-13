@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microsoft DirectStorage Developer Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        void: '#07090e',
+                        surface: '#0d111a',
+                        card: '#131926',
+                        elevated: '#1a2234',
+                        borderSubtle: '#222d42',
+                        accentCyan: '#00d2ff',
+                        accentPurple: '#8a3ffc',
+                        accentBlue: '#0070f3',
+                        neonGreen: '#10b981'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #07090e;
+            color: #d1d5db;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0d111a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #222d42;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00d2ff;
+        }
+
+        .glow-cyan {
+            box-shadow: 0 0 20px -5px rgba(0, 210, 255, 0.25);
+        }
+        .glow-purple {
+            box-shadow: 0 0 25px -5px rgba(138, 63, 252, 0.3);
+        }
+        .cyber-border {
+            border: 1px solid rgba(0, 210, 255, 0.15);
+        }
+        .cyber-border:hover {
+            border-color: rgba(0, 210, 255, 0.45);
+        }
+
+        /* Syntax colors */
+        .token-kw { color: #ff7b72; font-weight: 600; }
+        .token-fn { color: #d2a8ff; }
+        .token-str { color: #a5d6ff; }
+        .token-comment { color: #6e7681; font-style: italic; }
+        .token-type { color: #7ee787; font-weight: 500; }
+        .token-num { color: #79c0ff; }
+        .token-var { color: #ffa657; }
+    </style>
+</head>
+<body class="selection:bg-cyan-500/30 selection:text-cyan-200">
+
+    <header class="sticky top-0 z-50 bg-[#07090e]/90 backdrop-blur-md border-b border-borderSubtle">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-accentCyan to-accentPurple flex items-center justify-center text-white shadow-lg shadow-cyan-500/20">
+                    <i class="fa-solid fa-microchip text-lg"></i>
+                </div>
+                <div>
+                    <span class="text-white font-bold tracking-tight text-lg">Direct<span class="text-accentCyan">Storage</span></span>
+                    <span class="ml-2 text-xs font-mono uppercase px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800">1.4+ SDK</span>
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="hidden md:flex items-center space-x-6 text-sm font-medium text-gray-400">
+                <a href="#overview" class="hover:text-cyan-400 transition">Overview</a>
+                <a href="#requirements" class="hover:text-cyan-400 transition">Requirements</a>
+                <a href="#pipeline-interactive" class="hover:text-cyan-400 transition">Pipeline</a>
+                <a href="#csharp" class="hover:text-cyan-400 transition">C#</a>
+                <a href="#python-ctypes" class="hover:text-cyan-400 transition">Python ctypes</a>
+                <a href="#python-pybind" class="hover:text-cyan-400 transition">pybind11</a>
+            </div>
+
+            <div class="flex items-center space-x-3">
+                <a href="https://github.com/microsoft/DirectStorage" target="_blank" rel="noreferrer" 
+                   class="inline-flex items-center space-x-2 px-3 py-1.5 rounded-md bg-card border border-borderSubtle hover:border-cyan-500/50 text-xs text-gray-300 hover:text-white transition">
+                    <i class="fa-brands fa-github text-sm"></i>
+                    <span>Microsoft SDK</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col lg:flex-row gap-8">
+        
+        <aside class="w-full lg:w-64 shrink-0">
+            <div class="lg:sticky lg:top-24 space-y-6">
+                <div class="p-4 rounded-xl bg-surface border border-borderSubtle">
+                    <h4 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Table of Contents</h4>
+                    <nav class="space-y-1 text-sm">
+                        <a href="#overview" class="block py-1.5 px-3 rounded-lg text-gray-300 hover:text-cyan-400 hover:bg-card transition">1. Architecture Overview</a>
+                        <a href="#pipeline-interactive" class="block py-1.5 px-3 rounded-lg text-gray-300 hover:text-cyan-400 hover:bg-card transition">2. Pipeline Interactive Visualizer</a>
+                        <a href="#requirements" class="block py-1.5 px-3 rounded-lg text-gray-300 hover:text-cyan-400 hover:bg-card transition">3. Requirements &amp; Checker</a>
+                        <a href="#sdk-compression" class="block py-1.5 px-3 rounded-lg text-gray-300 hover:text-cyan-400 hover:bg-card transition">4. SDK 1.4 &amp; Compression</a>
+                        <a href="#csharp" class="block py-1.5 px-3 rounded-lg text-gray-300 hover:text-cyan-400 hover:bg-card transition">5. C# Vortice.Direct3D12</a>
+                        <a href="#python-ctypes" class="block py-1.5 px-3 rounded-lg text-gray-300 hover:text-cyan-400 hover:bg-card transition">6. Python ctypes Interop</a>
+                        <a href="#python-pybind" class="block py-1.5 px-3 rounded-lg text-gray-300 hover:text-cyan-400 hover:bg-card transition">7. Python pybind11 Native</a>
+                        <a href="#benchmarks" class="block py-1.5 px-3 rounded-lg text-gray-300 hover:text-cyan-400 hover:bg-card transition">8. Benchmarking Directives</a>
+                    </nav>
+                </div>
+
+                <!-- Hardware quick status badge -->
+                <div class="p-4 rounded-xl bg-card border border-borderSubtle">
+                    <div class="flex items-center justify-between text-xs font-mono text-gray-400 mb-2">
+                        <span>API STATUS</span>
+                        <span class="text-emerald-400 flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>ACTIVE</span>
+                    </div>
+                    <p class="text-xs text-gray-400 leading-relaxed">
+                        DirectStorage targets high-bandwidth PCIe NVMe SSDs to saturate hundreds of thousands of IOPS directly to VRAM.
+                    </p>
+                </div>
+            </div>
+        </aside>
+
+        <main class="flex-1 min-w-0 space-y-16">
+
+            <!-- SECTION 1: OVERVIEW -->
+            <section id="overview" class="space-y-6">
+                <div>
+                    <div class="inline-flex items-center space-x-2 text-xs font-mono text-cyan-400 mb-2 uppercase tracking-wide">
+                        <i class="fa-solid fa-bolt"></i>
+                        <span>High-Throughput Storage Architecture</span>
+                    </div>
+                    <h1 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">Microsoft DirectStorage Architecture</h1>
+                    <p class="mt-3 text-base text-gray-300 leading-relaxed max-w-3xl">
+                        Modern game asset streaming has outgrown the traditional synchronous storage stack. DirectStorage replaces legacy synchronous OS Win32 file handles with an asynchronous, lock-free, GPU-driven I/O pipeline engineered for NVMe SSDs and DirectX 12.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="p-5 rounded-xl bg-surface border border-borderSubtle hover:border-cyan-500/40 transition">
+                        <div class="w-10 h-10 rounded-lg bg-cyan-950/80 border border-cyan-800 text-cyan-400 flex items-center justify-center mb-3">
+                            <i class="fa-solid fa-diagram-project"></i>
+                        </div>
+                        <h3 class="text-white font-semibold text-base mb-1">CPU Bypass</h3>
+                        <p class="text-xs text-gray-400 leading-relaxed">Bypasses traditional system RAM bouncing and CPU thread context switching by routing data straight from NVMe storage to GPU allocations.</p>
+                    </div>
+
+                    <div class="p-5 rounded-xl bg-surface border border-borderSubtle hover:border-purple-500/40 transition">
+                        <div class="w-10 h-10 rounded-lg bg-purple-950/80 border border-purple-800 text-purple-400 flex items-center justify-center mb-3">
+                            <i class="fa-solid fa-microchip"></i>
+                        </div>
+                        <h3 class="text-white font-semibold text-base mb-1">GPU Decompression</h3>
+                        <p class="text-xs text-gray-400 leading-relaxed">Parallelizes massive asset decompression (GDeflate, Zstandard) on thousands of GPU compute cores rather than saturating host CPU cores.</p>
+                    </div>
+
+                    <div class="p-5 rounded-xl bg-surface border border-borderSubtle hover:border-emerald-500/40 transition">
+                        <div class="w-10 h-10 rounded-lg bg-emerald-950/80 border border-emerald-800 text-emerald-400 flex items-center justify-center mb-3">
+                            <i class="fa-solid fa-layer-group"></i>
+                        </div>
+                        <h3 class="text-white font-semibold text-base mb-1">Batch Enqueueing</h3>
+                        <p class="text-xs text-gray-400 leading-relaxed">Dispatches tens of thousands of requests per second using lock-free submission queues and standard D3D12 Fence synchronization.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="pipeline-interactive" class="space-y-6">
+                <div class="border-t border-borderSubtle pt-8">
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-arrows-split-up-and-left text-cyan-400"></i>
+                        <span>Pipeline Comparison: Legacy vs. DirectStorage</span>
+                    </h2>
+                    <p class="text-sm text-gray-400 mt-1">Switch between execution modes to understand the architectural dataflow changes.</p>
+                </div>
+
+                <div class="p-6 rounded-2xl bg-surface border border-borderSubtle">
+                    <!-- Toggle Controls -->
+                    <div class="flex items-center space-x-3 mb-6">
+                        <button id="btn-legacy" onclick="switchPipeline('legacy')" 
+                            class="px-4 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider transition bg-borderSubtle text-gray-300 hover:text-white">
+                            Legacy Win32 Pipeline
+                        </button>
+                        <button id="btn-directstorage" onclick="switchPipeline('ds')" 
+                            class="px-4 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider transition bg-cyan-500 text-black shadow-lg shadow-cyan-500/30">
+                            DirectStorage Pipeline
+                        </button>
+                    </div>
+
+                    <!-- Visual Representation Container -->
+                    <div id="pipeline-display" class="space-y-4">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </section>
+
+            <section id="requirements" class="space-y-6">
+                <div class="border-t border-borderSubtle pt-8">
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-cyan-400"></i>
+                        <span>System Requirements &amp; Verification</span>
+                    </h2>
+                    <p class="text-sm text-gray-400 mt-1">DirectStorage functions on Windows 10 &amp; 11 with distinct hardware optimization tiers.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="p-5 rounded-xl bg-card border border-borderSubtle space-y-4">
+                        <h3 class="text-base font-semibold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-shield-halved text-cyan-400"></i>
+                            <span>Hardware Prerequisites</span>
+                        </h3>
+                        <ul class="text-xs text-gray-300 space-y-2.5">
+                            <li class="flex items-start gap-2">
+                                <span class="text-cyan-400 font-bold">•</span>
+                                <div><strong class="text-white">Operating System:</strong> Windows 11 provides optimal bypassIO driver optimizations. Windows 10 (v1909 or higher) is supported via fallback compatibility paths.</div>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-cyan-400 font-bold">•</span>
+                                <div><strong class="text-white">Storage Device:</strong> NVMe SSD (PCIe 3.0 / 4.0 / 5.0). Standard SATA SSDs and HDDs function through legacy fallback queues but without high IOPS benefits.</div>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-cyan-400 font-bold">•</span>
+                                <div><strong class="text-white">Graphics Processor:</strong> DirectX 12 compatible GPU with Shader Model 6.0+ support for GPU decompression compute kernels.</div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Compatibility Interactive Checker -->
+                    <div class="p-5 rounded-xl bg-card border border-borderSubtle space-y-4">
+                        <h3 class="text-base font-semibold text-white flex items-center justify-between">
+                            <span class="flex items-center gap-2">
+                                <i class="fa-solid fa-stethoscope text-purple-400"></i>
+                                <span>DirectStorage Readiness Tester</span>
+                            </span>
+                            <span id="compat-badge" class="text-xs px-2 py-0.5 rounded font-mono bg-cyan-950 text-cyan-300 border border-cyan-800">Checking...</span>
+                        </h3>
+                        
+                        <div class="space-y-3 text-xs">
+                            <label class="flex items-center justify-between p-2 rounded bg-surface border border-borderSubtle cursor-pointer">
+                                <span>OS: Windows 11 installed (BypassIO support)</span>
+                                <input type="checkbox" id="chk-os" checked onchange="evaluateCompatibility()" class="rounded border-gray-700 text-cyan-500 focus:ring-0">
+                            </label>
+                            <label class="flex items-center justify-between p-2 rounded bg-surface border border-borderSubtle cursor-pointer">
+                                <span>Drive: NVMe M.2 SSD formatted as NTFS</span>
+                                <input type="checkbox" id="chk-ssd" checked onchange="evaluateCompatibility()" class="rounded border-gray-700 text-cyan-500 focus:ring-0">
+                            </label>
+                            <label class="flex items-center justify-between p-2 rounded bg-surface border border-borderSubtle cursor-pointer">
+                                <span>GPU: DirectX 12 Feature Level 12_0+ with SM 6.0</span>
+                                <input type="checkbox" id="chk-gpu" checked onchange="evaluateCompatibility()" class="rounded border-gray-700 text-cyan-500 focus:ring-0">
+                            </label>
+                        </div>
+                        <div id="compat-verdict" class="text-xs p-3 rounded-lg bg-surface border border-emerald-900/60 text-emerald-300 font-mono">
+                            Full DirectStorage &amp; BypassIO GPU-Decompression capability ready.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4 rounded-xl bg-surface border border-borderSubtle text-xs text-gray-400 flex items-start gap-3">
+                    <i class="fa-solid fa-circle-info text-cyan-400 mt-0.5 text-sm"></i>
+                    <div>
+                        <strong class="text-gray-200">How to inspect compatibility locally on Windows:</strong>
+                        Open the <strong>Xbox Game Bar</strong> (<kbd class="px-1.5 py-0.5 rounded bg-card border border-borderSubtle font-mono text-gray-300">Win</kbd> + <kbd class="px-1.5 py-0.5 rounded bg-card border border-borderSubtle font-mono text-gray-300">G</kbd>) &rarr; Settings &rarr; <em>Gaming Features</em> &rarr; <em>DirectStorage</em>. It displays drive-by-drive validation for BypassIO optimization.
+                    </div>
+                </div>
+            </section>
+
+            <section id="sdk-compression" class="space-y-6">
+                <div class="border-t border-borderSubtle pt-8">
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-file-zipper text-cyan-400"></i>
+                        <span>SDK 1.4 &amp; Modern Compression Architecture</span>
+                    </h2>
+                    <p class="text-sm text-gray-400 mt-1">Expanding decompression support beyond GDeflate into industry-standard Zstandard (Zstd).</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="p-5 rounded-xl bg-card border border-borderSubtle space-y-3">
+                        <h3 class="text-white font-semibold text-sm flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+                            <span>DirectStorage 1.4 Highlights</span>
+                        </h3>
+                        <p class="text-xs text-gray-300 leading-relaxed">
+                            The 1.4 release introduces <strong class="text-white">Zstandard (Zstd)</strong> compression compatibility, allowing game titles to use an open-standard, versatile compressor without sacrificing GPU streaming throughput.
+                        </p>
+                        <p class="text-xs text-gray-400 leading-relaxed">
+                            It also integrates <strong class="text-white">D3D12 CreatorIDs</strong> to associate DirectStorage resource requests with specific runtime modules for telemetry and profiler isolation, as well as the <strong class="text-white">Game Asset Conditioning Library</strong> to streamline build-time packaging.
+                        </p>
+                    </div>
+
+                    <div class="p-5 rounded-xl bg-card border border-borderSubtle space-y-3">
+                        <h3 class="text-white font-semibold text-sm flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-purple-400"></span>
+                            <span>Compression Algorithms Compared</span>
+                        </h3>
+                        <div class="overflow-x-auto text-xs">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b border-borderSubtle text-gray-400">
+                                        <th class="py-1.5">Codec</th>
+                                        <th class="py-1.5">Ratio</th>
+                                        <th class="py-1.5">GPU Decompression</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-gray-300 divide-y divide-borderSubtle/50">
+                                    <tr>
+                                        <td class="py-2 font-mono text-cyan-400">GDeflate</td>
+                                        <td class="py-2">High (Game tailored)</td>
+                                        <td class="py-2 text-emerald-400 font-semibold">Native Hardware/Compute</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-2 font-mono text-purple-400">Zstandard (Zstd)</td>
+                                        <td class="py-2">Very High &amp; Flexible</td>
+                                        <td class="py-2 text-emerald-400 font-semibold">DirectStorage 1.4+</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-2 font-mono text-gray-400">None (Raw)</td>
+                                        <td class="py-2">1.0x (Uncompressed)</td>
+                                        <td class="py-2 text-gray-400">Direct DMA Copy</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="csharp" class="space-y-6">
+                <div class="border-t border-borderSubtle pt-8">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                                <i class="fa-brands fa-microsoft text-cyan-400"></i>
+                                <span>C# Implementation (Vortice.Windows)</span>
+                            </h2>
+                            <p class="text-sm text-gray-400 mt-1">Complete production-ready C# implementation using Vortice.DirectStorage &amp; Vortice.Direct3D12.</p>
+                        </div>
+                        <span class="text-xs font-mono px-2 py-1 bg-surface border border-borderSubtle rounded text-gray-300">.NET 8 / C# 12</span>
+                    </div>
+                </div>
+
+                <!-- Package installation snippet -->
+                <div class="rounded-xl bg-card border border-borderSubtle overflow-hidden">
+                    <div class="flex items-center justify-between px-4 py-2.5 bg-surface border-b border-borderSubtle text-xs">
+                        <span class="font-mono text-gray-400">NuGet Dependencies</span>
+                        <button onclick="copyCodeFromPre('code-nuget', this)" class="text-gray-400 hover:text-white px-2 py-1 rounded bg-elevated hover:bg-borderSubtle transition flex items-center gap-1.5">
+                            <i class="fa-regular fa-copy"></i>
+                            <span class="btn-text">Copy</span>
+                        </button>
+                    </div>
+                    <pre class="p-4 text-xs font-mono text-cyan-300 overflow-x-auto"><code id="code-nuget">dotnet add package Vortice.Direct3D12
+dotnet add package Vortice.DirectStorage</code></pre>
+                </div>
+
+                <!-- Main C# Code Block -->
+                <div class="rounded-xl bg-surface border border-borderSubtle overflow-hidden shadow-2xl">
+                    <div class="flex items-center justify-between px-4 py-3 bg-card border-b border-borderSubtle text-xs">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-red-500/80"></span>
+                            <span class="w-3 h-3 rounded-full bg-yellow-500/80"></span>
+                            <span class="w-3 h-3 rounded-full bg-green-500/80"></span>
+                            <span class="font-mono text-gray-300 ml-2 font-medium">DirectStorageLoader.cs</span>
+                        </div>
+                        <button onclick="copyCodeFromPre('code-csharp-impl', this)" class="text-xs text-gray-300 hover:text-white px-3 py-1.5 rounded bg-elevated hover:bg-borderSubtle transition flex items-center gap-1.5">
+                            <i class="fa-regular fa-copy"></i>
+                            <span class="btn-text">Copy Code</span>
+                        </button>
+                    </div>
+                    <pre class="p-5 text-xs font-mono leading-relaxed overflow-x-auto text-gray-300"><code id="code-csharp-impl"><span class="token-kw">using</span> System;
+<span class="token-kw">using</span> System.IO;
+<span class="token-kw">using</span> System.Threading;
+<span class="token-kw">using</span> Vortice.Direct3D;
+<span class="token-kw">using</span> Vortice.Direct3D12;
+<span class="token-kw">using</span> Vortice.DirectStorage;
+<span class="token-kw">using</span> Vortice.DXGI;
+
+<span class="token-kw">public class</span> <span class="token-type">DirectStorageLoader</span> : <span class="token-type">IDisposable</span>
+{
+    <span class="token-kw">private</span> <span class="token-type">ID3D12Device</span>? _device;
+    <span class="token-kw">private</span> <span class="token-type">IDStorageFactory</span>? _factory;
+    <span class="token-kw">private</span> <span class="token-type">IDStorageQueue</span>? _queue;
+
+    <span class="token-kw">public void</span> <span class="token-fn">Initialize</span>()
+    {
+        <span class="token-comment">// 1. Initialize native D3D12 Device</span>
+        D3D12.<span class="token-fn">D3D12CreateDevice</span>(<span class="token-kw">null</span>, FeatureLevel.Level_12_0, <span class="token-kw">out</span> _device);
+        <span class="token-kw">if</span> (_device == <span class="token-kw">null</span>)
+            <span class="token-kw">throw new</span> <span class="token-type">PlatformNotSupportedException</span>(<span class="token-str">"Failed to create D3D12 Device."</span>);
+
+        <span class="token-comment">// 2. Acquire DirectStorage Singleton Factory</span>
+        DStorage.<span class="token-fn">DStorageGetFactory</span>(<span class="token-kw">out</span> _factory);
+        <span class="token-kw">if</span> (_factory == <span class="token-kw">null</span>)
+            <span class="token-kw">throw new</span> <span class="token-type">PlatformNotSupportedException</span>(<span class="token-str">"DirectStorage runtime library missing."</span>);
+
+        <span class="token-comment">// 3. Configure Lock-Free Queue for GPU File Streaming</span>
+        <span class="token-kw">var</span> queueDesc = <span class="token-kw">new</span> <span class="token-type">DSTORAGE_QUEUE_DESC</span>
+        {
+            SourceType = DSTORAGE_REQUEST_SOURCE_TYPE.FILE,
+            Capacity = DStorage.DSTORAGE_MAX_QUEUE_CAPACITY,
+            Priority = DSTORAGE_PRIORITY.NORMAL,
+            Device = _device
+        };
+        _factory.<span class="token-fn">CreateQueue</span>(queueDesc, <span class="token-kw">out</span> _queue);
+    }
+
+    <span class="token-kw">public void</span> <span class="token-fn">StreamFileToGpu</span>(<span class="token-type">string</span> filePath, <span class="token-type">ulong</span> byteLength)
+    {
+        <span class="token-comment">// Open file using DirectStorage specialized handle</span>
+        _factory!.<span class="token-fn">OpenFile</span>(filePath, <span class="token-kw">out</span> <span class="token-type">IDStorageFile</span>? dsFile);
+
+        <span class="token-comment">// Allocate destination GPU resource in Default Heap (VRAM)</span>
+        <span class="token-kw">var</span> resourceDesc = <span class="token-kw">new</span> <span class="token-type">ResourceDescription</span>
+        {
+            Dimension = ResourceDimension.Buffer,
+            Width = byteLength,
+            Height = <span class="token-num">1</span>,
+            DepthOrArraySize = <span class="token-num">1</span>,
+            MipLevels = <span class="token-num">1</span>,
+            Format = Format.Unknown,
+            SampleDescription = <span class="token-kw">new</span> <span class="token-type">SampleDescription</span>(<span class="token-num">1</span>, <span class="token-num">0</span>),
+            Layout = TextureLayout.RowMajor,
+            Flags = ResourceFlags.None
+        };
+
+        _device!.<span class="token-fn">CreateCommittedResource</span>(
+            <span class="token-kw">new</span> <span class="token-type">HeapProperties</span>(HeapType.Default),
+            HeapFlags.None,
+            resourceDesc,
+            ResourceStates.Common,
+            <span class="token-kw">out</span> <span class="token-type">ID3D12Resource</span>? gpuBuffer);
+
+        <span class="token-comment">// Create DirectStorage request payload</span>
+        <span class="token-kw">var</span> request = <span class="token-kw">new</span> <span class="token-type">DSTORAGE_REQUEST</span>
+        {
+            Options = <span class="token-kw">new</span> <span class="token-type">DSTORAGE_REQUEST_OPTIONS</span>
+            {
+                SourceType = DSTORAGE_REQUEST_SOURCE_TYPE.FILE,
+                DestinationType = DSTORAGE_REQUEST_DESTINATION_TYPE.BUFFER,
+                CompressionFormat = DSTORAGE_COMPRESSION_FORMAT.NONE
+            },
+            Source = <span class="token-kw">new</span> <span class="token-type">DSTORAGE_SOURCE</span>
+            {
+                File = <span class="token-kw">new</span> <span class="token-type">DSTORAGE_SOURCE_FILE</span> { File = dsFile, Offset = <span class="token-num">0</span>, Size = (<span class="token-type">uint</span>)byteLength }
+            },
+            Destination = <span class="token-kw">new</span> <span class="token-type">DSTORAGE_DESTINATION</span>
+            {
+                Buffer = <span class="token-kw">new</span> <span class="token-type">DSTORAGE_DESTINATION_BUFFER</span> { Resource = gpuBuffer, Offset = <span class="token-num">0</span>, Size = (<span class="token-type">uint</span>)byteLength }
+            },
+            UncompressedSize = (<span class="token-type">uint</span>)byteLength
+        };
+
+        <span class="token-comment">// Synchronization via D3D12 Fence</span>
+        _device.<span class="token-fn">CreateFence</span>(<span class="token-num">0</span>, FenceFlags.None, <span class="token-kw">out</span> <span class="token-type">ID3D12Fence</span>? fence);
+        <span class="token-type">ulong</span> targetFenceValue = <span class="token-num">1</span>;
+
+        _queue!.<span class="token-fn">EnqueueRequest</span>(request);
+        _queue.<span class="token-fn">EnqueueSignal</span>(fence!, targetFenceValue);
+        _queue.<span class="token-fn">Submit</span>();
+
+        <span class="token-comment">// Await completed signal safely</span>
+        <span class="token-kw">using var</span> waitHandle = <span class="token-kw">new</span> <span class="token-type">AutoResetEvent</span>(<span class="token-kw">false</span>);
+        fence!.<span class="token-fn">SetEventOnCompletion</span>(targetFenceValue, waitHandle.SafeWaitHandle.DangerousGetHandle());
+        waitHandle.<span class="token-fn">WaitOne</span>();
+
+        Console.<span class="token-fn">WriteLine</span>(<span class="token-str">"[DirectStorage] Stream completed directly to VRAM."</span>);
+
+        <span class="token-comment">// Cleanup allocations</span>
+        dsFile?.<span class="token-fn">Dispose</span>();
+        fence?.<span class="token-fn">Dispose</span>();
+        gpuBuffer?.<span class="token-fn">Dispose</span>();
+    }
+
+    <span class="token-kw">public void</span> <span class="token-fn">Dispose</span>()
+    {
+        _queue?.<span class="token-fn">Dispose</span>();
+        _factory?.<span class="token-fn">Dispose</span>();
+        _device?.<span class="token-fn">Dispose</span>();
+    }
+}</code></pre>
+                </div>
+            </section>
+
+            <section id="python-ctypes" class="space-y-6">
+                <div class="border-t border-borderSubtle pt-8">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                                <i class="fa-brands fa-python text-yellow-400"></i>
+                                <span>Python ctypes P/Invoke Inspection</span>
+                            </h2>
+                            <p class="text-sm text-gray-400 mt-1">Lightweight script to query the native Windows DirectStorage runtime DLL and factory GUID without compiler overhead.</p>
+                        </div>
+                        <span class="text-xs font-mono px-2 py-1 bg-surface border border-borderSubtle rounded text-gray-300">Pure Python</span>
+                    </div>
+                </div>
+
+                <div class="rounded-xl bg-surface border border-borderSubtle overflow-hidden shadow-2xl">
+                    <div class="flex items-center justify-between px-4 py-3 bg-card border-b border-borderSubtle text-xs">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-red-500/80"></span>
+                            <span class="w-3 h-3 rounded-full bg-yellow-500/80"></span>
+                            <span class="w-3 h-3 rounded-full bg-green-500/80"></span>
+                            <span class="font-mono text-gray-300 ml-2 font-medium">dstorage_probe.py</span>
+                        </div>
+                        <button onclick="copyCodeFromPre('code-python-ctypes', this)" class="text-xs text-gray-300 hover:text-white px-3 py-1.5 rounded bg-elevated hover:bg-borderSubtle transition flex items-center gap-1.5">
+                            <i class="fa-regular fa-copy"></i>
+                            <span class="btn-text">Copy Code</span>
+                        </button>
+                    </div>
+                    <pre class="p-5 text-xs font-mono leading-relaxed overflow-x-auto text-gray-300"><code id="code-python-ctypes"><span class="token-kw">import</span> sys
+<span class="token-kw">import</span> ctypes
+<span class="token-kw">from</span> ctypes <span class="token-kw">import</span> wintypes
+
+<span class="token-comment"># Native COM GUID representation for Windows</span>
+<span class="token-kw">class</span> <span class="token-type">GUID</span>(ctypes.Structure):
+    _fields_ = [
+        (<span class="token-str">"Data1"</span>, wintypes.DWORD),
+        (<span class="token-str">"Data2"</span>, wintypes.WORD),
+        (<span class="token-str">"Data3"</span>, wintypes.WORD),
+        (<span class="token-str">"Data4"</span>, ctypes.c_ubyte * <span class="token-num">8</span>)
+    ]
+
+<span class="token-comment"># Interface Identifier: IID_IDStorageFactory</span>
+<span class="token-comment"># {5DE95E7B-95B2-486A-86CC-832B52924E57}</span>
+IID_IDStorageFactory = GUID(
+    <span class="token-num">0x5DE95E7B</span>, <span class="token-num">0x95B2</span>, <span class="token-num">0x486A</span>,
+    (ctypes.c_ubyte * <span class="token-num">8</span>)(<span class="token-num">0x86</span>, <span class="token-num">0xCC</span>, <span class="token-num">0x83</span>, <span class="token-num">0x2B</span>, <span class="token-num">0x52</span>, <span class="token-num">0x92</span>, <span class="token-num">0x4E</span>, <span class="token-num">0x57</span>)
+)
+
+<span class="token-kw">def</span> <span class="token-fn">probe_directstorage</span>():
+    <span class="token-kw">if</span> sys.platform != <span class="token-str">"win32"</span>:
+        <span class="token-fn">print</span>(<span class="token-str">"[ERROR] DirectStorage is supported strictly on Windows 10/11."</span>)
+        <span class="token-kw">return</span> <span class="token-kw">False</span>
+
+    <span class="token-kw">try</span>:
+        <span class="token-comment"># Attempt to load the official runtime binary</span>
+        ds_lib = ctypes.WinDLL(<span class="token-str">"dstoragecore.dll"</span>)
+    <span class="token-kw">except</span> OSError <span class="token-kw">as</span> err:
+        <span class="token-fn">print</span>(<span class="token-str">f"[FAIL] Could not locate 'dstoragecore.dll': {err}"</span>)
+        <span class="token-fn">print</span>(<span class="token-str">"[INFO] Ensure Microsoft.DirectStorage redistributable DLL is on PATH or script folder."</span>)
+        <span class="token-kw">return</span> <span class="token-kw">False</span>
+
+    <span class="token-comment"># Exported signature: HRESULT DStorageGetFactory(REFIID riid, void** ppv)</span>
+    DStorageGetFactory = ds_lib.DStorageGetFactory
+    DStorageGetFactory.argtypes = [ctypes.POINTER(GUID), ctypes.POINTER(ctypes.c_void_p)]
+    DStorageGetFactory.restype = wintypes.HRESULT
+
+    factory_ptr = ctypes.c_void_p()
+    hr = DStorageGetFactory(ctypes.byref(IID_IDStorageFactory), ctypes.byref(factory_ptr))
+
+    S_OK = <span class="token-num">0</span>
+    <span class="token-kw">if</span> hr == S_OK <span class="token-kw">and</span> factory_ptr.value:
+        <span class="token-fn">print</span>(<span class="token-str">"[SUCCESS] DirectStorage Factory acquired successfully!"</span>)
+        <span class="token-fn">print</span>(<span class="token-str">f"Pointer address: {hex(factory_ptr.value)}"</span>)
+        <span class="token-kw">return</span> <span class="token-kw">True</span>
+    <span class="token-kw">else</span>:
+        <span class="token-fn">print</span>(<span class="token-str">f"[FAIL] DStorageGetFactory returned HRESULT: {hex(hr & 0xFFFFFFFF)}"</span>)
+        <span class="token-kw">return</span> <span class="token-kw">False</span>
+
+<span class="token-kw">if</span> __name__ == <span class="token-str">"__main__"</span>:
+    probe_directstorage()</code></pre>
+                </div>
+            </section>
+
+            <section id="python-pybind" class="space-y-6">
+                <div class="border-t border-borderSubtle pt-8">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-gears text-purple-400"></i>
+                                <span>High-Performance Python via pybind11 C++ Wrapper</span>
+                            </h2>
+                            <p class="text-sm text-gray-400 mt-1">Production-ready C++ extension delivering native GPU asset streaming directly into Python applications.</p>
+                        </div>
+                        <span class="text-xs font-mono px-2 py-1 bg-surface border border-borderSubtle rounded text-gray-300">C++20 / pybind11</span>
+                    </div>
+                </div>
+
+                <p class="text-xs text-gray-300 leading-relaxed">
+                    DirectStorage utilizes complex C++ COM interfaces and compute shader dispatching. For production Python applications (AI dataset loaders, neural renderers, 3D pipelines), compile a pybind11 C++ dynamic module to expose a straightforward API:
+                </p>
+
+                <!-- C++ pybind11 Code Block -->
+                <div class="rounded-xl bg-surface border border-borderSubtle overflow-hidden shadow-2xl">
+                    <div class="flex items-center justify-between px-4 py-3 bg-card border-b border-borderSubtle text-xs">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-red-500/80"></span>
+                            <span class="w-3 h-3 rounded-full bg-yellow-500/80"></span>
+                            <span class="w-3 h-3 rounded-full bg-green-500/80"></span>
+                            <span class="font-mono text-gray-300 ml-2 font-medium">directstorage_pybind.cpp</span>
+                        </div>
+                        <button onclick="copyCodeFromPre('code-pybind-cpp', this)" class="text-xs text-gray-300 hover:text-white px-3 py-1.5 rounded bg-elevated hover:bg-borderSubtle transition flex items-center gap-1.5">
+                            <i class="fa-regular fa-copy"></i>
+                            <span class="btn-text">Copy Code</span>
+                        </button>
+                    </div>
+                    <pre class="p-5 text-xs font-mono leading-relaxed overflow-x-auto text-gray-300"><code id="code-pybind-cpp"><span class="token-comment">#include &lt;pybind11/pybind11.h&gt;</span>
+<span class="token-comment">#include &lt;dstorage.h&gt;</span>
+<span class="token-comment">#include &lt;d3d12.h&gt;</span>
+<span class="token-comment">#include &lt;wrl/client.h&gt;</span>
+<span class="token-comment">#include &lt;string&gt;</span>
+<span class="token-comment">#include &lt;stdexcept&gt;</span>
+
+<span class="token-kw">namespace</span> py = pybind11;
+<span class="token-kw">using</span> Microsoft::WRL::ComPtr;
+
+<span class="token-kw">class</span> <span class="token-type">DirectStorageStreamer</span> {
+<span class="token-kw">public</span>:
+    <span class="token-fn">DirectStorageStreamer</span>() {
+        <span class="token-comment">// 1. Initialize Direct3D 12 Device</span>
+        <span class="token-kw">if</span> (<span class="token-fn">FAILED</span>(D3D12CreateDevice(<span class="token-kw">nullptr</span>, D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&amp;device_)))) {
+            <span class="token-kw">throw</span> std::runtime_error(<span class="token-str">"Failed to create D3D12 device"</span>);
+        }
+
+        <span class="token-comment">// 2. Initialize DirectStorage Factory</span>
+        <span class="token-kw">if</span> (<span class="token-fn">FAILED</span>(DStorageGetFactory(IID_PPV_ARGS(&amp;factory_)))) {
+            <span class="token-kw">throw</span> std::runtime_error(<span class="token-str">"Failed to initialize DirectStorage Factory"</span>);
+        }
+
+        <span class="token-comment">// 3. Create File Queue</span>
+        DSTORAGE_QUEUE_DESC queueDesc = {};
+        queueDesc.SourceType = DSTORAGE_REQUEST_SOURCE_TYPE_FILE;
+        queueDesc.Capacity = DSTORAGE_MAX_QUEUE_CAPACITY;
+        queueDesc.Priority = DSTORAGE_PRIORITY_NORMAL;
+        queueDesc.Device = device_.Get();
+
+        <span class="token-kw">if</span> (<span class="token-fn">FAILED</span>(factory_-&gt;CreateQueue(&amp;queueDesc, IID_PPV_ARGS(&amp;queue_)))) {
+            <span class="token-kw">throw</span> std::runtime_error(<span class="token-str">"Failed to create DirectStorage Queue"</span>);
+        }
+
+        <span class="token-comment">// 4. Initialize Fence for synchronization</span>
+        device_-&gt;CreateFence(<span class="token-num">0</span>, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&amp;fence_));
+        fenceEvent_ = CreateEvent(<span class="token-kw">nullptr</span>, FALSE, FALSE, <span class="token-kw">nullptr</span>);
+    }
+
+    <span class="token-kw">virtual</span> ~<span class="token-fn">DirectStorageStreamer</span>() {
+        <span class="token-kw">if</span> (fenceEvent_) CloseHandle(fenceEvent_);
+    }
+
+    <span class="token-type">bool</span> <span class="token-fn">stream_file</span>(<span class="token-kw">const</span> std::string&amp; path, <span class="token-type">uint64_t</span> fileSize) {
+        ComPtr&lt;IDStorageFile&gt; file;
+        std::wstring wpath(path.begin(), path.end());
+
+        <span class="token-kw">if</span> (<span class="token-fn">FAILED</span>(factory_-&gt;OpenFile(wpath.c_str(), IID_PPV_ARGS(&amp;file)))) {
+            <span class="token-kw">return false</span>;
+        }
+
+        <span class="token-comment">// Prepare committed GPU buffer in Default Heap</span>
+        D3D12_HEAP_PROPERTIES heapProps = { D3D12_HEAP_TYPE_DEFAULT };
+        D3D12_RESOURCE_DESC resDesc = {};
+        resDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+        resDesc.Width = fileSize;
+        resDesc.Height = <span class="token-num">1</span>;
+        resDesc.DepthOrArraySize = <span class="token-num">1</span>;
+        resDesc.MipLevels = <span class="token-num">1</span>;
+        resDesc.SampleDesc.Count = <span class="token-num">1</span>;
+        resDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+
+        ComPtr&lt;ID3D12Resource&gt; gpuBuffer;
+        device_-&gt;CreateCommittedResource(
+            &amp;heapProps,
+            D3D12_HEAP_FLAG_NONE,
+            &amp;resDesc,
+            D3D12_RESOURCE_STATE_COMMON,
+            <span class="token-kw">nullptr</span>,
+            IID_PPV_ARGS(&amp;gpuBuffer));
+
+        <span class="token-comment">// Enqueue Read Request</span>
+        DSTORAGE_REQUEST request = {};
+        request.Options.SourceType = DSTORAGE_REQUEST_SOURCE_TYPE_FILE;
+        request.Options.DestinationType = DSTORAGE_REQUEST_DESTINATION_TYPE_BUFFER;
+        request.Options.CompressionFormat = DSTORAGE_COMPRESSION_FORMAT_NONE;
+        request.Source.File.File = file.Get();
+        request.Source.File.Offset = <span class="token-num">0</span>;
+        request.Source.File.Size = <span class="token-kw">static_cast</span>&lt;<span class="token-type">uint32_t</span>&gt;(fileSize);
+        request.Destination.Buffer.Resource = gpuBuffer.Get();
+        request.Destination.Buffer.Size = <span class="token-kw">static_cast</span>&lt;<span class="token-type">uint32_t</span>&gt;(fileSize);
+        request.UncompressedSize = <span class="token-kw">static_cast</span>&lt;<span class="token-type">uint32_t</span>&gt;(fileSize);
+
+        queue_-&gt;EnqueueRequest(&amp;request);
+        
+        <span class="token-comment">// Enqueue fence signal &amp; submit</span>
+        <span class="token-type">uint64_t</span> waitVal = ++fenceVal_;
+        queue_-&gt;EnqueueSignal(fence_.Get(), waitVal);
+        queue_-&gt;Submit();
+
+        <span class="token-comment">// Block until GPU DMA finishes</span>
+        fence_-&gt;SetEventOnCompletion(waitVal, fenceEvent_);
+        WaitForSingleObject(fenceEvent_, INFINITE);
+        <span class="token-kw">return true</span>;
+    }
+
+<span class="token-kw">private</span>:
+    ComPtr&lt;ID3D12Device&gt; device_;
+    ComPtr&lt;IDStorageFactory&gt; factory_;
+    ComPtr&lt;IDStorageQueue&gt; queue_;
+    ComPtr&lt;ID3D12Fence&gt; fence_;
+    HANDLE fenceEvent_ = <span class="token-kw">nullptr</span>;
+    <span class="token-type">uint64_t</span> fenceVal_ = <span class="token-num">0</span>;
+};
+
+<span class="token-comment">// Expose class directly to Python using pybind11</span>
+<span class="token-fn">PYBIND11_MODULE</span>(py_directstorage, m) {
+    m.doc() = <span class="token-str">"High-performance DirectStorage Python Bridge"</span>;
+    py::class_&lt;DirectStorageStreamer&gt;(m, <span class="token-str">"DirectStorageStreamer"</span>)
+        .def(py::init&lt;&gt;())
+        .def(<span class="token-str">"stream_file"</span>, &amp;DirectStorageStreamer::stream_file, 
+             py::arg(<span class="token-str">"path"</span>), py::arg(<span class="token-str">"file_size"</span>));
+}</code></pre>
+                </div>
+
+                <!-- Python Calling Code snippet -->
+                <div class="rounded-xl bg-card border border-borderSubtle overflow-hidden">
+                    <div class="flex items-center justify-between px-4 py-2.5 bg-surface border-b border-borderSubtle text-xs">
+                        <span class="font-mono text-gray-400">test_loader.py (Using the compiled module)</span>
+                        <button onclick="copyCodeFromPre('code-pybind-usage', this)" class="text-gray-400 hover:text-white px-2 py-1 rounded bg-elevated hover:bg-borderSubtle transition flex items-center gap-1.5">
+                            <i class="fa-regular fa-copy"></i>
+                            <span class="btn-text">Copy</span>
+                        </button>
+                    </div>
+                    <pre class="p-4 text-xs font-mono text-purple-300 overflow-x-auto"><code id="code-pybind-usage">import os
+import py_directstorage
+
+streamer = py_directstorage.DirectStorageStreamer()
+file_path = "D:\\game_assets\\large_terrain_mesh.bin"
+file_size = os.path.getsize(file_path)
+
+# Transfers 2.4 GB directly from NVMe to VRAM without CPU memory bouncing
+success = streamer.stream_file(file_path, file_size)
+print(f"Direct NVMe -> VRAM transfer complete: {success}")</code></pre>
+                </div>
+            </section>
+
+            <section id="benchmarks" class="space-y-6">
+                <div class="border-t border-borderSubtle pt-8">
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-chart-line text-cyan-400"></i>
+                        <span>Performance &amp; Benchmarking Guidelines</span>
+                    </h2>
+                    <p class="text-sm text-gray-400 mt-1">Best practices for saturating PCIe bandwidth and preventing pipeline stalls.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <div class="p-5 rounded-xl bg-surface border border-borderSubtle space-y-2">
+                        <div class="text-cyan-400 font-mono text-sm font-semibold">1. Batch Submissions</div>
+                        <p class="text-xs text-gray-400 leading-relaxed">
+                            Do not submit individual 4KB reads. Enqueue hundreds of requests with <code class="text-gray-300">EnqueueRequest()</code> before calling <code class="text-gray-300">Submit()</code> to maximize NVMe queue depth.
+                        </p>
+                    </div>
+
+                    <div class="p-5 rounded-xl bg-surface border border-borderSubtle space-y-2">
+                        <div class="text-purple-400 font-mono text-sm font-semibold">2. Choose GDeflate/Zstd</div>
+                        <p class="text-xs text-gray-400 leading-relaxed">
+                            Use tile-compressed GDeflate or Zstd packages. GPU compute clusters decompress gigabytes in milliseconds, turning the NVMe transfer rate into the sole factor.
+                        </p>
+                    </div>
+
+                    <div class="p-5 rounded-xl bg-surface border border-borderSubtle space-y-2">
+                        <div class="text-emerald-400 font-mono text-sm font-semibold">3. Enable BypassIO</div>
+                        <p class="text-xs text-gray-400 leading-relaxed">
+                            Ensure the target drive uses NTFS on Windows 11 with driver stack filters compatible with BypassIO to avoid transitioning to legacy OS filter managers.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <footer class="border-t border-borderSubtle pt-8 pb-12 text-center text-xs text-gray-500 space-y-2">
+                <p>Microsoft DirectStorage developer reference documentation. DirectStorage &amp; DirectX 12 are trademarks of Microsoft Corporation.</p>
+                <p class="font-mono text-gray-600">Generated for modern low-latency game engines and data-intensive pipelines.</p>
+            </footer>
+
+        </main>
+    </div>
+
+    <script>
+        // Pipeline Interactive Switcher
+        const legacyPipelineHTML = `
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-center">
+                <div class="p-4 rounded-xl bg-card border border-red-900/40">
+                    <div class="text-red-400 text-xs font-mono uppercase mb-1">Step 1: Storage</div>
+                    <div class="text-white font-medium text-sm">NVMe SSD</div>
+                    <div class="text-[11px] text-gray-400 mt-1">Read via OS file system stack</div>
+                </div>
+                <div class="p-4 rounded-xl bg-card border border-red-900/40">
+                    <div class="text-red-400 text-xs font-mono uppercase mb-1">Step 2: Host RAM</div>
+                    <div class="text-white font-medium text-sm">System RAM Bounce</div>
+                    <div class="text-[11px] text-gray-400 mt-1">Stored in staging buffers</div>
+                </div>
+                <div class="p-4 rounded-xl bg-card border border-red-900/40">
+                    <div class="text-red-400 text-xs font-mono uppercase mb-1">Step 3: CPU Bottleneck</div>
+                    <div class="text-white font-medium text-sm">CPU Decompression</div>
+                    <div class="text-[11px] text-gray-400 mt-1">Heavy CPU load &amp; latency</div>
+                </div>
+                <div class="p-4 rounded-xl bg-card border border-red-900/40">
+                    <div class="text-red-400 text-xs font-mono uppercase mb-1">Step 4: GPU Copy</div>
+                    <div class="text-white font-medium text-sm">PCIe DMA to VRAM</div>
+                    <div class="text-[11px] text-gray-400 mt-1">PCIe Bus traversed twice</div>
+                </div>
+            </div>
+            <div class="mt-4 p-3 rounded-lg bg-red-950/20 border border-red-900/50 text-red-300 text-xs flex items-center gap-2">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span>Legacy Issue: Stalling CPU cores on file decompression starves simulation and render threads.</span>
+            </div>
+        `;
+
+        const dsPipelineHTML = `
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-center">
+                <div class="p-4 rounded-xl bg-card border border-cyan-800">
+                    <div class="text-cyan-400 text-xs font-mono uppercase mb-1">Step 1: NVMe Direct</div>
+                    <div class="text-white font-medium text-sm">BypassIO Storage Read</div>
+                    <div class="text-[11px] text-gray-400 mt-1">Direct lock-free batch request</div>
+                </div>
+                <div class="p-4 rounded-xl bg-card border border-cyan-800">
+                    <div class="text-cyan-400 text-xs font-mono uppercase mb-1">Step 2: Direct DMA</div>
+                    <div class="text-white font-medium text-sm">Straight to VRAM</div>
+                    <div class="text-[11px] text-gray-400 mt-1">DirectStorage Queue transfer</div>
+                </div>
+                <div class="p-4 rounded-xl bg-card border border-cyan-800">
+                    <div class="text-cyan-400 text-xs font-mono uppercase mb-1">Step 3: Hardware Unpack</div>
+                    <div class="text-white font-medium text-sm">GPU Decompression</div>
+                    <div class="text-[11px] text-gray-400 mt-1">GDeflate / Zstd on compute units</div>
+                </div>
+            </div>
+            <div class="mt-4 p-3 rounded-lg bg-cyan-950/30 border border-cyan-800 text-cyan-300 text-xs flex items-center gap-2">
+                <i class="fa-solid fa-bolt"></i>
+                <span>DirectStorage Benefit: Zero CPU load during decompression, single PCIe transfer pass, sub-second load times.</span>
+            </div>
+        `;
+
+        function switchPipeline(type) {
+            const container = document.getElementById('pipeline-display');
+            const btnLegacy = document.getElementById('btn-legacy');
+            const btnDs = document.getElementById('btn-directstorage');
+
+            if (type === 'legacy') {
+                container.innerHTML = legacyPipelineHTML;
+                btnLegacy.className = "px-4 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider transition bg-red-600 text-white shadow-lg shadow-red-600/30";
+                btnDs.className = "px-4 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider transition bg-borderSubtle text-gray-300 hover:text-white";
+            } else {
+                container.innerHTML = dsPipelineHTML;
+                btnDs.className = "px-4 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider transition bg-cyan-500 text-black shadow-lg shadow-cyan-500/30";
+                btnLegacy.className = "px-4 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider transition bg-borderSubtle text-gray-300 hover:text-white";
+            }
+        }
+
+        // Initialize default view
+        switchPipeline('ds');
+
+        // Compatibility Evaluator
+        function evaluateCompatibility() {
+            const os = document.getElementById('chk-os').checked;
+            const ssd = document.getElementById('chk-ssd').checked;
+            const gpu = document.getElementById('chk-gpu').checked;
+            const badge = document.getElementById('compat-badge');
+            const verdict = document.getElementById('compat-verdict');
+
+            if (os && ssd && gpu) {
+                badge.textContent = "OPTIMAL";
+                badge.className = "text-xs px-2 py-0.5 rounded font-mono bg-emerald-950 text-emerald-300 border border-emerald-800";
+                verdict.className = "text-xs p-3 rounded-lg bg-surface border border-emerald-900/60 text-emerald-300 font-mono";
+                verdict.textContent = "Full DirectStorage & BypassIO GPU-Decompression capability enabled.";
+            } else if (ssd && gpu && !os) {
+                badge.textContent = "FALLBACK";
+                badge.className = "text-xs px-2 py-0.5 rounded font-mono bg-yellow-950 text-yellow-300 border border-yellow-800";
+                verdict.className = "text-xs p-3 rounded-lg bg-surface border border-yellow-900/60 text-yellow-300 font-mono";
+                verdict.textContent = "Legacy OS path active. Operates without Windows 11 BypassIO stack optimization.";
+            } else {
+                badge.textContent = "LIMITED";
+                badge.className = "text-xs px-2 py-0.5 rounded font-mono bg-red-950 text-red-300 border border-red-800";
+                verdict.className = "text-xs p-3 rounded-lg bg-surface border border-red-900/60 text-red-300 font-mono";
+                verdict.textContent = "DirectStorage requires DX12 GPU and NVMe SSD to function at full throughput.";
+            }
+        }
+        evaluateCompatibility();
+
+        // Safe Copy Implementation that never corrupts DOM or formatting
+        function copyCodeFromPre(preId, buttonElement) {
+            const preElement = document.getElementById(preId);
+            if (!preElement) return;
+
+            // Extract pure textContent to safely ignore HTML tags and syntax spans
+            const rawText = preElement.innerText || preElement.textContent;
+            const labelSpan = buttonElement.querySelector('.btn-text');
+            const originalText = labelSpan ? labelSpan.textContent : 'Copy';
+
+            const showSuccess = () => {
+                if (labelSpan) labelSpan.textContent = 'Copied!';
+                buttonElement.classList.add('text-cyan-400');
+                setTimeout(() => {
+                    if (labelSpan) labelSpan.textContent = originalText;
+                    buttonElement.classList.remove('text-cyan-400');
+                }, 2000);
+            };
+
+            // Attempt modern clipboard API with fallback
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(rawText)
+                    .then(showSuccess)
+                    .catch(() => fallbackCopy(rawText, showSuccess));
+            } else {
+                fallbackCopy(rawText, showSuccess);
+            }
+        }
+
+        function fallbackCopy(text, callback) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-9999px";
+            textArea.style.top = "0";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                if (callback) callback();
+            } catch (err) {
+                console.error("Fallback copy failed", err);
+            } finally {
+                document.body.removeChild(textArea);
+            }
+        }
+    </script>
+</body>
+</html>
